@@ -4,6 +4,7 @@ import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import {vechicalRouter} from "./routes/vechical.js";
 import { getVechicalbyparams, postVechical, getVechicalbyid, editVechicalbyid, deleteVechicalbyid } from "./vechicalmethod.js";
+import cors from "cors";
 dotenv.config();//all key and values put in env.process
 console.log(process.env);
 
@@ -116,6 +117,7 @@ const app=express();
      "pic": "https://imgd.aeplcdn.com/664x374/n/cw/ec/100121/i20-n-line-exterior-right-front-three-quarter-12.jpeg?isig=0&q=85"
     }
    ]
+   app.use(cors());//3rd party middleware
    app.use(express.json());//middleware saying that we passing json data while posting
    
 //    const MONGO_URL = "mongodb://localhost";
