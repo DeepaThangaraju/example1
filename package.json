@@ -1,10 +1,13 @@
 {
   "dependencies": {
-    "express": "^4.17.1"
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mongodb": "^4.2.1"
   },
   "name": "vechicle-node",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "devDependencies": {
     "nodemon": "^2.0.15"
   },
