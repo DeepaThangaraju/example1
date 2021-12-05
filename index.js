@@ -9,7 +9,7 @@ console.log(process.env);
 
 
 const app=express();
- const PORT=process.env.PORT;
+ 
  const vechicals=[
     {
      "id": "100",
@@ -120,6 +120,7 @@ const app=express();
    
 //    const MONGO_URL = "mongodb://localhost";
 const MONGO_URL=process.env.MONGO_URL;
+const PORT=process.env.PORT;
 
    
    
