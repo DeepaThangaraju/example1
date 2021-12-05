@@ -118,8 +118,7 @@ const app=express();
    
 //    const MONGO_URL = "mongodb://localhost";
 const MONGO_URL=process.env.MONGO_URL;
-//    const MONGO_URL="mongodb+srv://deepa:welcome123@cluster0.bacm4.mongodb.net"
-   //mongodb+srv://deepa:<password>@cluster0.bacm4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+
    
    
    async function Createconnection() {
