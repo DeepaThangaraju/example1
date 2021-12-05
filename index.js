@@ -1,4 +1,11 @@
-const express =require("express");
+// const express =require("express");
+import express, { request, response } from "express";
+import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
+dotenv.config();//all key and values put in env.process
+console.log(process.env);
+
+
 const app=express();
  const port=9000;
  const vechicals=[
@@ -107,7 +114,24 @@ const app=express();
      "pic": "https://imgd.aeplcdn.com/664x374/n/cw/ec/100121/i20-n-line-exterior-right-front-three-quarter-12.jpeg?isig=0&q=85"
     }
    ]
- app.get("/",(request,response)=>
+   app.use(express.json());//middleware saying that we passing json data while posting
+   
+//    const MONGO_URL = "mongodb://localhost";
+const MONGO_URL=process.env.MONGO_URL;
+//    const MONGO_URL="mongodb+srv://deepa:welcome123@cluster0.bacm4.mongodb.net"
+   //mongodb+srv://deepa:<password>@cluster0.bacm4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+   
+   
+   async function Createconnection() {
+    const client = new MongoClient(MONGO_URL);
+    await client.connect();
+    console.log("mongodb connect");
+    return client;
+}
+const client=await Createconnection();
+ 
+
+app.get("/",(request,response)=>
  {
      response.send("hello🌎")
 
@@ -115,29 +139,93 @@ const app=express();
  
  
 
- app.get("/vechicals",(request,response)=>{
+ app.get("/vechicals",async (request,response)=>{
     console.log(request.query);
-    const {name,rate}=request.query;
-    let getbyparams=vechicals
-    if(name)
-{
-    getbyparams=getbyparams.filter((mv)=>name===mv.name);
-}if(rate){
-    getbyparams=getbyparams.filter((mv)=>mv.rate===parseFloat(rate));
-    // getbyparams=getbyparams.filter((mv)=>mv.rate===parseFloat(rate));
-    
-}
+    const filter=request.query;
+    console.log(filter);
+    if(filter.rate){
+        filter.rate=parseFloat(filter.rate);
+    }   
+const getbyparams=await getVechicalbyparams(filter);//convert to array
  response.send(getbyparams);
  });
  
- app.get("/vechicals/:id",(request,response)=>{
+
+ app.post("/vechicals",async (request,response)=>{
+     const data=request.body;
+     const result=await postVechical(data);
+     response.send(result);
+ })
+ 
+ 
+ app.get("/vechicals/:id",async (request,response)=>{
  console.log(request.params);
 const {id}=request.params;
-const getbyid=vechicals.find((mv)=>id===mv.id);
+// const getbyid=vechicals.find((mv)=>id===mv.id);
+const getbyid=await getVechicalbyid(id);
 getbyid
 ?response.send(getbyid)
 :response.status(404).send({message: "no vechical found"});
 });
+
+app.put("/vechicals/:id",async (request,response)=>{
+    console.log(request.params);
+   const {id}=request.params;
+   const data=request.body;
+   const getbyid=await editVechicalbyid(id, data);
+   const editedVechical=await getVechicalbyid(id);
+   response.send(editedVechical);
+   });
+
+
+app.delete("/vechicals/:id",async (request,response)=>{
+    console.log(request.params);
+   const {id}=request.params;
+   // const getbyid=vechicals.find((mv)=>id===mv.id);
+   const result=await deleteVechicalbyid(id);
+  result.deletedCount>0
+   ?response.send(result)
+   :response.status(404).send({message: "no vechical found"});
+   });
+
+
  app.listen(port,()=>console.log("APP is started",port)); 
+
+
+async function deleteVechicalbyid(id) {
+    return await client
+        .db("vechicals")
+        .collection("vechicallist")
+        .deleteOne({ id: id });
+}
+
+async function editVechicalbyid(id, data) {
+    return await client
+        .db("vechicals")
+        .collection("vechicallist")
+        .updateOne({ id: id }, { $set: data });
+}
+
+async function getVechicalbyid(id) {
+    return await client
+        .db("vechicals")
+        .collection("vechicallist")
+        .findOne({ id: id });
+}
+
+async function postVechical(data) {
+    return await client
+        .db("vechicals")
+        .collection("vechicallist")
+        .insertMany(data);
+}
+
+async function getVechicalbyparams(filter) {
+    return await client
+        .db("vechicals")
+        .collection("vechicallist")
+        .find(filter) // it is curser nothing but pagination
+        .toArray();
+}
   // has to be used to display in browser
   //to create package json
