@@ -9,7 +9,7 @@ console.log(process.env);
 
 
 const app=express();
- const port=process.env.port;
+ const PORT=process.env.PORT;
  const vechicals=[
     {
      "id": "100",
